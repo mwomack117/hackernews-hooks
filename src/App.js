@@ -59,6 +59,7 @@ const App = () => {
   };
 
   const page = (results && results.page) || 0;
+
   return (
     <div className="page">
       {console.log(results)}
