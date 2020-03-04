@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import Button from "./Button";
 
@@ -43,5 +44,13 @@ const Table = ({ list, onDismiss }) => (
     ))}
   </div>
 );
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired
+};
+
+Button.defaultProps = { className: "" };
 
 export default Table;

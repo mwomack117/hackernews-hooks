@@ -1,27 +1,38 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-
 import axios from "axios";
+import PropTypes from "prop-types";
+
 import Button from "./components/Button";
 import Table from "./components/Table";
 import Search from "./components/Search";
 
-const PATH_BASE = "https://hn.algolia.com/api/v1/search?query=";
-const PARAM_QUERY = "redux";
-const PARAM_HITS_PER_PAGE = "&hitsPerPage=20";
-const PARAM_PAGE = "&page=";
+import {
+  PATH_BASE,
+  PARAM_HITS_PER_PAGE,
+  PARAM_QUERY,
+  PARAM_PAGE
+} from "./constants";
 
 const App = () => {
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState({});
   const [searchTerm, setSearchTerm] = useState(PARAM_QUERY);
   const [searchKey, setSearchKey] = useState("");
+  const [error, setError] = useState(null);
+
+  const needsToSearchTopStories = searchTerm => {
+    return !results[searchTerm];
+  };
 
   const setSearchTopStories = result => {
     const { hits, page } = result;
-    const oldHits = page !== 0 ? result.hits : [];
+
+    const oldHits =
+      results && results[searchKey] ? results[searchKey].hits : [];
     const updatedHits = [...oldHits, ...hits];
 
-    setResults({ hits: updatedHits, page });
+    const newResults = { ...results, [searchKey]: { hits: updatedHits, page } };
+    setResults(newResults);
   };
 
   const fetchSearchTopStories = (searchTerm, page = 0) => {
@@ -29,16 +40,18 @@ const App = () => {
       .get(PATH_BASE + searchTerm + PARAM_HITS_PER_PAGE + PARAM_PAGE + page)
       .then(response => {
         setSearchTopStories(response.data);
-        // setResults(response.data);
+        console.log(response.data);
+        console.log("api-hit");
       })
       .catch(error => {
+        setError(error);
         console.log(error);
       });
   };
 
   useEffect(() => {
-    fetchSearchTopStories(searchTerm);
     setSearchKey(searchTerm);
+    fetchSearchTopStories(searchTerm);
   }, []);
 
   const onSearchChange = event => {
@@ -47,21 +60,27 @@ const App = () => {
 
   const onSearchSubmit = event => {
     setSearchKey(searchTerm);
-    fetchSearchTopStories(searchTerm);
+
+    if (needsToSearchTopStories(searchTerm)) {
+      fetchSearchTopStories(searchTerm);
+    }
+
     event.preventDefault();
   };
 
   const onDismiss = id => {
     const isNotId = item => item.objectID !== id;
-    const updatedHits = results.hits.filter(isNotId);
+    const updatedHits = results[searchKey].hits.filter(isNotId);
     // same as ^^ // const updatedHits = result.hits.filter(item => item.objectID !== id);
-    setResults({ ...results, hits: updatedHits });
+    setResults({ ...results, [searchKey]: { hits: updatedHits } });
   };
 
-  const page = (results && results.page) || 0;
+  const page = (results && results[searchKey] && results[searchKey].page) || 0;
+  const list = (results && results[searchKey] && results[searchKey].hits) || [];
 
   return (
     <div className="page">
+      <p>Learn React</p>
       {console.log(results)}
       <div className="interactions">
         <Search
@@ -72,20 +91,49 @@ const App = () => {
           Search
         </Search>
       </div>
-      {results && <Table list={results.hits} onDismiss={onDismiss} />}
+      {error ? (
+        <div className="interactions">
+          <p>
+            Something went wrong{" "}
+            <span role="img" aria-label="confused imoji">
+              🤔
+            </span>
+          </p>
+        </div>
+      ) : (
+        <Table list={list} onDismiss={onDismiss} />
+      )}
       <div className="interactions">
-        {page >= 1 && (
-          <Button onClick={() => fetchSearchTopStories(searchTerm, page - 1)}>
-            Back
-          </Button>
-        )}
-        <Button onClick={() => fetchSearchTopStories(searchTerm, page + 1)}>
+        <Button onClick={() => fetchSearchTopStories(searchKey, page + 1)}>
           More
         </Button>
         <p>Page: {page + 1}</p>
       </div>
     </div>
   );
+};
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired
+};
+
+Search.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired
+};
+
+Table.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      objectID: PropTypes.string.isRequired,
+      author: PropTypes.string,
+      url: PropTypes.string,
+      num_comments: PropTypes.number,
+      points: PropTypes.number
+    })
+  ).isRequired,
+  onDismiss: PropTypes.func.isRequired
 };
 
 export default App;
