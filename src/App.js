@@ -17,13 +17,14 @@ import {
 const App = () => {
   const [results, setResults] = useState({});
   const [searchTerm, setSearchTerm] = useState(PARAM_QUERY);
-  const [searchKey, setSearchKey] = useState("");
+  const [searchKey, setSearchKey] = useState(PARAM_QUERY);
   const [error, setError] = useState(null);
 
   const needsToSearchTopStories = searchTerm => {
     return !results[searchTerm];
   };
 
+  // Something in this function making submit have to hit twice to render results ....???
   const setSearchTopStories = result => {
     const { hits, page } = result;
 
@@ -41,7 +42,6 @@ const App = () => {
       .then(response => {
         setSearchTopStories(response.data);
         console.log(response.data);
-        console.log("api-hit");
       })
       .catch(error => {
         setError(error);
@@ -50,7 +50,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    setSearchKey(searchTerm);
+    // setSearchKey(searchTerm);
     fetchSearchTopStories(searchTerm);
   }, []);
 
@@ -59,13 +59,14 @@ const App = () => {
   };
 
   const onSearchSubmit = event => {
+    event.preventDefault();
+
     setSearchKey(searchTerm);
+    console.log(searchKey);
 
     if (needsToSearchTopStories(searchTerm)) {
       fetchSearchTopStories(searchTerm);
     }
-
-    event.preventDefault();
   };
 
   const onDismiss = id => {
@@ -107,7 +108,6 @@ const App = () => {
         <Button onClick={() => fetchSearchTopStories(searchKey, page + 1)}>
           More
         </Button>
-        <p>Page: {page + 1}</p>
       </div>
     </div>
   );
