@@ -6,6 +6,8 @@ import PropTypes from "prop-types";
 import Button from "./components/Button";
 import Table from "./components/Table";
 import Search from "./components/Search";
+import Header from "./components/Header";
+import Loading from "./components/Loading";
 
 import {
   PATH_BASE,
@@ -19,12 +21,12 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState(PARAM_QUERY);
   const [searchKey, setSearchKey] = useState(PARAM_QUERY);
   const [error, setError] = useState(null);
+  const [isLoading, setLoading] = useState(false);
 
   const needsToSearchTopStories = searchTerm => {
     return !results[searchTerm];
   };
 
-  // Something in this function making submit have to hit twice to render results ....???
   const setSearchTopStories = result => {
     const { hits, page } = result;
 
@@ -34,14 +36,17 @@ const App = () => {
 
     const newResults = { ...results, [searchKey]: { hits: updatedHits, page } };
     setResults(newResults);
+    setLoading(false);
   };
 
   const fetchSearchTopStories = (searchTerm, page = 0) => {
+    setLoading(true);
+
     axios
       .get(PATH_BASE + searchTerm + PARAM_HITS_PER_PAGE + PARAM_PAGE + page)
       .then(response => {
         setSearchTopStories(response.data);
-        console.log(response.data);
+        console.log("API call", response.data);
       })
       .catch(error => {
         setError(error);
@@ -50,29 +55,27 @@ const App = () => {
   };
 
   useEffect(() => {
-    // setSearchKey(searchTerm);
-    fetchSearchTopStories(searchTerm);
-  }, []);
+    setSearchKey(searchTerm);
+
+    if (needsToSearchTopStories(searchTerm)) {
+      fetchSearchTopStories(searchTerm);
+    }
+  }, [searchKey]);
 
   const onSearchChange = event => {
     setSearchTerm(event.target.value);
   };
 
   const onSearchSubmit = event => {
-    event.preventDefault();
-
     setSearchKey(searchTerm);
-    console.log(searchKey);
 
-    if (needsToSearchTopStories(searchTerm)) {
-      fetchSearchTopStories(searchTerm);
-    }
+    event.preventDefault();
   };
 
   const onDismiss = id => {
     const isNotId = item => item.objectID !== id;
     const updatedHits = results[searchKey].hits.filter(isNotId);
-    // same as ^^ // const updatedHits = result.hits.filter(item => item.objectID !== id);
+    // same as ^^ // const updatedHits = results[searchKey].hits.filter(item => item.objectID !== id);
     setResults({ ...results, [searchKey]: { hits: updatedHits } });
   };
 
@@ -81,16 +84,14 @@ const App = () => {
 
   return (
     <div className="page">
-      <p>Learn React</p>
-      {console.log(results)}
-      <div className="interactions">
-        <Search
+      <div>
+        <Header
           value={searchTerm}
           onChange={onSearchChange}
           onSubmit={onSearchSubmit}
         >
           Search
-        </Search>
+        </Header>
       </div>
       {error ? (
         <div className="interactions">
@@ -105,9 +106,13 @@ const App = () => {
         <Table list={list} onDismiss={onDismiss} />
       )}
       <div className="interactions">
-        <Button onClick={() => fetchSearchTopStories(searchKey, page + 1)}>
-          More
-        </Button>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <Button onClick={() => fetchSearchTopStories(searchKey, page + 1)}>
+            More
+          </Button>
+        )}
       </div>
     </div>
   );
