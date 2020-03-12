@@ -1,5 +1,30 @@
 .page {
   margin: 20px;
+  background-color: #f6f6ef;
+}
+
+.header {
+  background-color: rgb(255, 102, 0);
+  padding: 5px;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav h2 {
+  padding-left: 10px;
+}
+
+input {
+  font-size: 14px;
+  width: 175px;
+}
+
+button {
+  font-size: 14px;
 }
 
 .interactions {
@@ -19,14 +44,7 @@
   line-height: 24px;
   font-size: 18px;
   padding: 0 10px;
-  /* justify-content: space-between; */
 }
-
-/* .table-empty {
-  margin: 200px;
-  text-align: center;
-  font-size: 16px;
-} */
 
 .table-row {
   display: flex;
@@ -38,12 +56,7 @@
   border: 1px solid #e3e3e3;
 }
 
-.table-header > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 5px;
-}
-
+.table-header > span,
 .table-row > span {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -56,12 +69,35 @@
   color: inherit;
   text-align: inherit;
   -webkit-font-smoothing: inherit;
-  padding: 0;
+  padding: 4px;
   font-size: inherit;
   cursor: pointer;
 }
 
-/* .button-active {
-  border-radius: 0;
-  border-bottom: 1px solid #38bb6c;
-} */
+.button-reverse {
+  display: flex;
+  align-items: center;
+  border: 1px rgb(255, 102, 0) solid;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  -webkit-font-smoothing: inherit;
+  padding: 4px;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.button-reverse:focus {
+  outline: none;
+}
+
+.button-active,
+.button-active:hover {
+  background-color: rgb(255, 102, 0);
+  color: white;
+  text-align: inherit;
+  -webkit-font-smoothing: inherit;
+  padding: 4px;
+  font-size: inherit;
+  cursor: pointer;
+}
