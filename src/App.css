@@ -87,7 +87,8 @@ button {
   cursor: pointer;
 }
 
-.button-reverse:focus {
+.button-reverse:focus,
+.button-inline:focus {
   outline: none;
 }
 

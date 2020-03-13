@@ -32,9 +32,11 @@ const App = () => {
 
     const oldHits =
       results && results[searchKey] ? results[searchKey].hits : [];
+
     const updatedHits = [...oldHits, ...hits];
 
     const newResults = { ...results, [searchKey]: { hits: updatedHits, page } };
+
     setResults(newResults);
     setLoading(false);
   };
