@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import PropTypes from "prop-types";
+
+import SignUpPage from "../SignUp";
+import SignInPage from "../SignIn";
+import PasswordForgetPage from "../PasswordForget";
+import HomePage from "../Home";
+import AccountPage from "../Account";
+
+import * as ROUTES from "../../constants/routes";
 
 import Button from "../Button";
 import Table from "../Table";
@@ -85,8 +94,8 @@ const App = () => {
   const list = (results && results[searchKey] && results[searchKey].hits) || [];
 
   return (
-    <div className="page">
-      <div>
+    <Router>
+      <div className="page">
         <Header
           value={searchTerm}
           onChange={onSearchChange}
@@ -94,29 +103,48 @@ const App = () => {
         >
           Search
         </Header>
+
+        <Switch>
+          <Route exact path={"/"}>
+            <Search
+              value={searchTerm}
+              onChange={onSearchChange}
+              onSubmit={onSearchSubmit}
+            >
+              Search
+            </Search>
+            {error ? (
+              <div className="interactions">
+                <p>
+                  Something went wrong{" "}
+                  <span role="img" aria-label="confused imoji">
+                    🤔
+                  </span>
+                </p>
+              </div>
+            ) : (
+              <Table list={list} onDismiss={onDismiss} />
+            )}
+            <div className="interactions">
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <Button
+                  onClick={() => fetchSearchTopStories(searchKey, page + 1)}
+                >
+                  More
+                </Button>
+              )}
+            </div>
+          </Route>
+          <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
+          <Route path={ROUTES.SIGN_IN} component={SignInPage} />
+          <Route path={ROUTES.PASSWORD_FORGET} component={PasswordForgetPage} />
+          <Route path={ROUTES.HOME} component={HomePage} />
+          <Route path={ROUTES.ACCOUNT} component={AccountPage} />
+        </Switch>
       </div>
-      {error ? (
-        <div className="interactions">
-          <p>
-            Something went wrong{" "}
-            <span role="img" aria-label="confused imoji">
-              🤔
-            </span>
-          </p>
-        </div>
-      ) : (
-        <Table list={list} onDismiss={onDismiss} />
-      )}
-      <div className="interactions">
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <Button onClick={() => fetchSearchTopStories(searchKey, page + 1)}>
-            More
-          </Button>
-        )}
-      </div>
-    </div>
+    </Router>
   );
 };
 

@@ -8,6 +8,17 @@
   padding: 5px;
 }
 
+.nav-links {
+  display: flex;
+}
+
+.nav-links li a {
+  font-size: 16px;
+  list-style: none;
+  padding-right: 7px;
+  text-decoration: none;
+}
+
 nav {
   display: flex;
   align-items: center;
@@ -27,6 +38,10 @@ button {
   font-size: 14px;
 }
 
+form {
+  text-align: center;
+  margin-top: 5px;
+}
 .interactions {
   text-align: center;
 }
